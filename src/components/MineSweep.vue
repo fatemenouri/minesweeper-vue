@@ -5,7 +5,7 @@
       <h1 :class="{ win: isWin === true, lose: gameover === true }">
         {{ result }}
       </h1>
-      <button class="restart">Restart</button>
+      <button class="restart" @click.self="restart">Restart</button>
     </div>
   </div>
 </template>
@@ -20,12 +20,16 @@ export default {
       squares: [],
       bombs: 20,
       result: "",
+      grid: "",
     };
   },
   mounted() {
     this.startGame();
   },
   methods: {
+    restart() {
+      this.$emit("reload");
+    },
     startGame() {
       this.createGrid();
 
@@ -79,8 +83,7 @@ export default {
       }
     },
     createGrid() {
-      let grid = document.querySelector(".grid");
-
+      this.grid = document.querySelector(".grid");
       let bombsArray = Array(this.bombs).fill("bomb");
       let dataArray = Array(this.width * this.width - this.bombs).fill("valid");
       let sumArray = dataArray.concat(bombsArray);
@@ -90,7 +93,7 @@ export default {
         const square = document.createElement("div");
         square.setAttribute("id", i);
         square.classList.add(randomArray[i]);
-        grid.appendChild(square);
+        this.grid.appendChild(square);
         this.squares.push(square);
         square.addEventListener("click", () => {
           this.clicked(square);
@@ -176,9 +179,6 @@ export default {
           this.squares[i].innerHTML = "💣";
           let restart = document.querySelector(".restart");
           restart.style.display = "flex";
-          restart.addEventListener("click", () => {
-            location.reload();
-          });
         }
       }
     },
@@ -199,9 +199,6 @@ export default {
             this.squares[i].innerHTML = "💣";
             let restart = document.querySelector(".restart");
             restart.style.display = "flex";
-            restart.addEventListener("click", () => {
-              location.reload();
-            });
           }
         }
       }

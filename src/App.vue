@@ -1,6 +1,6 @@
 <template>
   <h1 class="title">"{{ title }}"</h1>
-  <MineSweep />
+  <MineSweep v-if="renderComponent" @reload="forceRerender" />
 </template>
 
 <script>
@@ -11,7 +11,16 @@ export default {
   data() {
     return {
       title: "MINE SWEEPER",
+      renderComponent: true,
     };
+  },
+  methods: {
+    forceRerender() {
+      this.renderComponent = false;
+      this.$nextTick(() => {
+        this.renderComponent = true;
+      });
+    },
   },
 };
 </script>
