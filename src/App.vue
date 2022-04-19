@@ -1,11 +1,10 @@
 <template>
-  <h1 class="title">{{ title }}</h1>
-  <button @click="startGame()">start game</button>
+  <h1 class="title">"{{ title }}"</h1>
   <div class="container">
     <div ref="grid" class="grid"></div>
     <div class="result-section">
       <h1 class="result"></h1>
-      <button class="restart">restart</button>
+      <button class="restart">Restart</button>
     </div>
   </div>
 </template>
@@ -18,12 +17,13 @@ export default {
     return {
       title: "MINE SWEEPER",
       gameover: false,
+      isWin: false,
       width: 10,
       squares: [],
+      bombs: 20,
     };
   },
-
-  beforeMount() {
+  mounted() {
     this.startGame();
   },
   methods: {
@@ -80,10 +80,9 @@ export default {
     },
     createGrid() {
       let grid = document.querySelector(".grid");
-      let bombs = 20;
 
-      let bombsArray = Array(bombs).fill("bomb");
-      let dataArray = Array(this.width * this.width - bombs).fill("valid");
+      let bombsArray = Array(this.bombs).fill("bomb");
+      let dataArray = Array(this.width * this.width - this.bombs).fill("valid");
       let sumArray = dataArray.concat(bombsArray);
       let randomArray = sumArray.sort(() => Math.random() - 0.5);
 
@@ -110,12 +109,14 @@ export default {
         if (data != 0) {
           square.innerHTML = data;
           square.classList.add("checked");
+          this.win();
           return;
         }
 
         this.checkSquare(square, currentId);
       }
       square.classList.add("checked");
+      this.win();
     },
 
     checkSquare(square, currentId) {
@@ -124,44 +125,44 @@ export default {
 
       setTimeout(() => {
         if (currentId > 0 && !isLeftEdge) {
-          const newId = squares[parseInt(currentId) - 1].id;
+          const newId = this.squares[parseInt(currentId) - 1].id;
           const newSquare = document.getElementById(newId);
-          clicked(newSquare);
+          this.clicked(newSquare);
         }
         if (currentId > 9 && !isRightEdge) {
-          const newId = squares[parseInt(currentId) + 1 - width].id;
+          const newId = this.squares[parseInt(currentId) + 1 - this.width].id;
           const newSquare = document.getElementById(newId);
-          clicked(newSquare);
+          this.clicked(newSquare);
         }
         if (currentId > 10) {
-          const newId = squares[parseInt(currentId - width)].id;
+          const newId = this.squares[parseInt(currentId - this.width)].id;
           const newSquare = document.getElementById(newId);
-          clicked(newSquare);
+          this.clicked(newSquare);
         }
         if (currentId > 11 && !isLeftEdge) {
-          const newId = squares[parseInt(currentId) - 1 - width].id;
+          const newId = this.squares[parseInt(currentId) - 1 - this.width].id;
           const newSquare = document.getElementById(newId);
-          clicked(newSquare);
+          this.clicked(newSquare);
         }
         if (currentId < 98 && !isRightEdge) {
-          const newId = squares[parseInt(currentId) + 1].id;
+          const newId = this.squares[parseInt(currentId) + 1].id;
           const newSquare = document.getElementById(newId);
-          clicked(newSquare);
+          this.clicked(newSquare);
         }
         if (currentId < 90 && !isLeftEdge) {
-          const newId = squares[parseInt(currentId) - 1 + width].id;
+          const newId = this.squares[parseInt(currentId) - 1 + this.width].id;
           const newSquare = document.getElementById(newId);
-          clicked(newSquare);
+          this.clicked(newSquare);
         }
         if (currentId < 88 && !isRightEdge) {
-          const newId = squares[parseInt(currentId) + 1 + width].id;
+          const newId = this.squares[parseInt(currentId) + 1 + this.width].id;
           const newSquare = document.getElementById(newId);
-          clicked(newSquare);
+          this.clicked(newSquare);
         }
         if (currentId < 89) {
-          const newId = squares[parseInt(currentId) + width].id;
+          const newId = this.squares[parseInt(currentId) + this.width].id;
           const newSquare = document.getElementById(newId);
-          clicked(newSquare);
+          this.clicked(newSquare);
         }
       }, 10);
     },
@@ -187,6 +188,20 @@ export default {
             location.reload();
           });
         }
+      }
+    },
+
+    win() {
+      let count = 0;
+      let result = document.querySelector(".result");
+      for (let i = 0; i < this.squares.length; i++) {
+        if (this.squares[i].classList.contains("checked")) {
+          count++;
+        }
+      }
+      if (count === this.squares.length - this.bombs) {
+        result.innerHTML = "Win";
+        this.isWin = true;
       }
     },
   },
@@ -235,9 +250,9 @@ export default {
   box-sizing: border-box;
 }
 
-.bomb {
+/* .bomb {
   background-color: red;
-}
+} */
 
 .checked {
   background-color: #c6bcbc;
@@ -250,6 +265,7 @@ export default {
   align-items: center;
   display: none;
   width: 100px;
+  font-size: 20px;
 }
 
 .result-section {
@@ -258,5 +274,22 @@ export default {
   justify-content: center;
   align-items: center;
   text-align: center;
+}
+
+button {
+  justify-content: center;
+  text-align: center;
+  align-items: center;
+  width: 100px;
+  border: 5px solid;
+  border-color: #f5f3eb #bab7a9 #bab7a9 #fff9db;
+  box-sizing: border-box;
+  background-color: #dcd6bc;
+  padding: 10px 0px;
+  margin-bottom: 10px;
+}
+
+.result {
+  color: darkred;
 }
 </style>
