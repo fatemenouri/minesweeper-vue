@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <div ref="grid" class="grid"></div>
+    <div ref="grid" class="grid" id="grid"></div>
     <div class="result-section">
       <h1 :class="{ win: isWin === true, lose: gameover === true }">
         {{ result }}
@@ -12,13 +12,13 @@
 
 <script>
 export default {
+  props: ["number"],
   data() {
     return {
       gameover: false,
       isWin: false,
-      width: 10,
+      width: this.number,
       squares: [],
-      bombs: 20,
       result: "",
       grid: "",
     };
@@ -32,8 +32,8 @@ export default {
     },
     startGame() {
       this.createGrid();
-
-      for (let i = 0; i < 100; i++) {
+      let bombs = this.width * 2;
+      for (let i = 0; i < this.width * this.width; i++) {
         const leftSection = i % this.width === 0;
         const rightSection = i % this.width === this.width - 1;
         let data = 0;
@@ -45,35 +45,41 @@ export default {
           )
             data++;
           if (
-            i < 98 &&
+            i < this.width * this.width - 2 &&
             !rightSection &&
             this.squares[i + 1].classList.contains("bomb")
           )
             data++;
           if (
-            i < 90 &&
+            i < this.width * this.width - this.width &&
             !leftSection &&
             this.squares[i - 1 + this.width].classList.contains("bomb")
           )
             data++;
-          if (i < 89 && this.squares[i + this.width].classList.contains("bomb"))
+          if (
+            i < this.width * this.width - this.width - 1 &&
+            this.squares[i + this.width].classList.contains("bomb")
+          )
             data++;
           if (
-            i < 88 &&
+            i < this.width * this.width - this.width - 2 &&
             !rightSection &&
             this.squares[i + this.width + 1].classList.contains("bomb")
           )
             data++;
           if (
-            i > 11 &&
+            i > this.width + 1 &&
             !leftSection &&
             this.squares[i - this.width - 1].classList.contains("bomb")
           )
             data++;
-          if (i > 10 && this.squares[i - this.width].classList.contains("bomb"))
+          if (
+            i > this.width &&
+            this.squares[i - this.width].classList.contains("bomb")
+          )
             data++;
           if (
-            i > 9 &&
+            i > this.width - 1 &&
             !rightSection &&
             this.squares[i + 1 - this.width].classList.contains("bomb")
           )
@@ -83,9 +89,17 @@ export default {
       }
     },
     createGrid() {
+      let grid = document.getElementById("grid");
+      let stylewidth = this.width * 50;
+      grid.style.width = `${stylewidth}px`;
+      grid.style.height = `${stylewidth}px`;
+
       this.grid = document.querySelector(".grid");
-      let bombsArray = Array(this.bombs).fill("bomb");
-      let dataArray = Array(this.width * this.width - this.bombs).fill("valid");
+      let bombs = this.width * 2;
+
+      let bombsArray = Array(bombs).fill("bomb");
+
+      let dataArray = Array(this.width * this.width - bombs).fill("valid");
       let sumArray = dataArray.concat(bombsArray);
       let randomArray = sumArray.sort(() => Math.random() - 0.5);
 
@@ -132,37 +146,40 @@ export default {
           const newSquare = document.getElementById(newId);
           this.clicked(newSquare);
         }
-        if (currentId > 9 && !isRightEdge) {
+        if (currentId > this.width - 1 && !isRightEdge) {
           const newId = this.squares[parseInt(currentId) + 1 - this.width].id;
           const newSquare = document.getElementById(newId);
           this.clicked(newSquare);
         }
-        if (currentId > 10) {
+        if (currentId > this.width) {
           const newId = this.squares[parseInt(currentId - this.width)].id;
           const newSquare = document.getElementById(newId);
           this.clicked(newSquare);
         }
-        if (currentId > 11 && !isLeftEdge) {
+        if (currentId > this.width + 1 && !isLeftEdge) {
           const newId = this.squares[parseInt(currentId) - 1 - this.width].id;
           const newSquare = document.getElementById(newId);
           this.clicked(newSquare);
         }
-        if (currentId < 98 && !isRightEdge) {
+        if (currentId < this.width * this.width - 2 && !isRightEdge) {
           const newId = this.squares[parseInt(currentId) + 1].id;
           const newSquare = document.getElementById(newId);
           this.clicked(newSquare);
         }
-        if (currentId < 90 && !isLeftEdge) {
+        if (currentId < this.width * this.width - this.width && !isLeftEdge) {
           const newId = this.squares[parseInt(currentId) - 1 + this.width].id;
           const newSquare = document.getElementById(newId);
           this.clicked(newSquare);
         }
-        if (currentId < 88 && !isRightEdge) {
+        if (
+          currentId < this.width * this.width - this.width - 2 &&
+          !isRightEdge
+        ) {
           const newId = this.squares[parseInt(currentId) + 1 + this.width].id;
           const newSquare = document.getElementById(newId);
           this.clicked(newSquare);
         }
-        if (currentId < 89) {
+        if (currentId < this.width * this.width - this.width - 1) {
           const newId = this.squares[parseInt(currentId) + this.width].id;
           const newSquare = document.getElementById(newId);
           this.clicked(newSquare);
@@ -190,7 +207,8 @@ export default {
           count++;
         }
       }
-      if (count === this.squares.length - this.bombs) {
+      let bombs = this.width * 2;
+      if (count === this.squares.length - bombs) {
         this.isWin = true;
         this.result = "Win";
 
@@ -218,8 +236,8 @@ export default {
 
 .grid {
   display: flex;
-  height: 500px;
-  width: 500px;
+  /* height: 500px;
+  width: 500px; */
   flex-wrap: wrap;
   background-color: #dcd6bc;
   border: 10px solid #dcd6bc;

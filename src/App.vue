@@ -1,17 +1,19 @@
 <template>
   <h1 class="title">"{{ title }}"</h1>
-  <MineSweep v-if="renderComponent" @reload="forceRerender" />
+  <MineSweep v-if="renderComponent" @reload="forceRerender" :number="number" />
 </template>
 
 <script>
 import MineSweep from "./components/MineSweep.vue";
 export default {
   name: "App",
+
   components: { MineSweep },
   data() {
     return {
       title: "MINE SWEEPER",
       renderComponent: true,
+      number: 5,
     };
   },
   methods: {
